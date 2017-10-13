@@ -1,0 +1,25 @@
+{
+  "name": "ldb-change",
+  "version": "1.0.0",
+  "description": "Basic object comparison",
+  "main": "lib/index.js",
+  "dependencies": {
+    "lodash": "^4.x"
+  },
+  "devDependencies": {
+    "mocha": "^2.x",
+    "should": "^8.2.x"
+  },
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tonybranfort/ldb-change"
+  },
+  "keywords": [],
+  "author": "Tony Branfort",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/tonybranfort/ldb-change/issues"
+  },
+  "homepage": "https://github.com/tonybranfort/ldb-change#readme"
+}
