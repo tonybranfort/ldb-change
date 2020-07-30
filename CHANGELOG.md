@@ -11,8 +11,8 @@
 - Remove lodash
 - Breaking changes:
   - js files now in dist folder
-  - getDiffs fn will now return diffs if comparing 2 arrays that vary in length and options stopAt is path to arrays
-    - Example: getDiffs({a:[]},{a:[{o:44}]},undefined,{stopAt:{'a':true}}) previously would have returned [] but now will return [{"path":"a","lObj":[],"rObj":[{"o":44}]}]
+  - `getDiffs` fn will now return diffs if comparing 2 arrays that vary in length and options stopAt is path to arrays
+    - Example: `getDiffs({a:[]},{a:[{o:44}]},undefined,{stopAt:{'a':true}})` previously would have returned `[]` but now will return `[{"path":"a","lObj":[],"rObj":[{"o":44}]}]`
 
 # v1.0.0 
 - Initial release
