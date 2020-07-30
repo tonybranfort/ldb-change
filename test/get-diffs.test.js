@@ -115,7 +115,20 @@ describe('getDiffs', () => {
     d[0].rObj.should.match([]);
   }); // end of it
 
-  it('should get diffs when lObj array is empty with stopAt', function() {
+  it('should get diffs when lObj array is empty with stopAt ', function() {
+    let lo = {b: []};
+    let ro = {b: [{c: 8}, {c:9}]};
+    let d = getDiffs(lo, ro, undefined, {stopAt: {"b": true}});
+    // console.log(d);
+    // console.log(d[0].lObj);
+    // console.log(d[0].rObj);
+    d.length.should.equal(1);
+    d[0].path.should.equal('b');
+    d[0].lObj.should.match([]);
+    d[0].rObj.should.match([{c: 8}, {c:9}]);
+  }); // end of it
+
+  it('should get diffs when lObj array is empty with stopAt with nested path', function() {
     let lo = {a: {b: []}};
     let ro = {a: {b: [{c: 8}, {c:9}]}};
     let d = getDiffs(lo, ro, undefined, {stopAt: {"a.b": true}});
