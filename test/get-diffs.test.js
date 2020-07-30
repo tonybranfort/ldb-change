@@ -2,7 +2,7 @@
 **/ 
 
 let should = require('should'); 
-let getDiffs = require('../lib').getDiffs;
+let {getDiffs} = require('../dist');
 
 describe('getDiffs', () => {
   it('should compare primitives', function() {
@@ -100,6 +100,32 @@ describe('getDiffs', () => {
     d[0].path.should.equal('a.b');
     d[0].lObj.should.match([{c: 8}, {c:9}]);
     d[0].rObj.should.match([{c: 8}, {c:10}]);
+  }); // end of it
+
+  it('should get diffs of different array lengths with stopAt', function() {
+    let lo = {a: {b: [{c: 8}, {c:9}]}};
+    let ro = {a: {b: []}};
+    let d = getDiffs(lo, ro, undefined, {stopAt: {"a.b": true}});
+    // console.log(d);
+    // console.log(d[0].lObj);
+    // console.log(d[0].rObj);
+    d.length.should.equal(1);
+    d[0].path.should.equal('a.b');
+    d[0].lObj.should.match([{c: 8}, {c:9}]);
+    d[0].rObj.should.match([]);
+  }); // end of it
+
+  it('should get diffs when lObj array is empty with stopAt', function() {
+    let lo = {a: {b: []}};
+    let ro = {a: {b: [{c: 8}, {c:9}]}};
+    let d = getDiffs(lo, ro, undefined, {stopAt: {"a.b": true}});
+    // console.log(d);
+    // console.log(d[0].lObj);
+    // console.log(d[0].rObj);
+    d.length.should.equal(1);
+    d[0].path.should.equal('a.b');
+    d[0].lObj.should.match([]);
+    d[0].rObj.should.match([{c: 8}, {c:9}]);
   }); // end of it
 
   it('should return no path if rObj is null', function() {

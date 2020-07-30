@@ -4,4 +4,8 @@ const gd = require('./get-diffs');
 
 module.exports = {
   getDiffs: gd.getDiffs
+
+
 };
+
+export * from './get-diffs'

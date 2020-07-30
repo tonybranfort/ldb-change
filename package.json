@@ -3,10 +3,9 @@
   "version": "1.0.0",
   "description": "Basic object comparison",
   "main": "lib/index.js",
-  "dependencies": {
-    "lodash": "^4.x"
-  },
+  "dependencies": {},
   "devDependencies": {
+    "@types/node": "^14.0.27",
     "mocha": "^2.x",
     "should": "^8.2.x"
   },
