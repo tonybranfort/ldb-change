@@ -1,13 +1,11 @@
 {
   "name": "ldb-change",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Basic object comparison",
   "main": "lib/index.js",
   "dependencies": {},
   "devDependencies": {
-    "@types/node": "^14.0.27",
-    "mocha": "^2.x",
-    "should": "^8.2.x"
+    "@types/node": "^14.0.27"
   },
   "scripts": {},
   "repository": {
