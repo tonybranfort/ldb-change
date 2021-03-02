@@ -1,3 +1,6 @@
+# v3.1.0
+- Add function getAtPath
+
 # v3.0.1
 - Re-build with typescript declaration files (no code changes)
 

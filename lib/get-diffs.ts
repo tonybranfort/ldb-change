@@ -50,7 +50,7 @@ export interface GetDiffsOptions {
 **/   
 export function getDiffs(lObj:any, rObj:any, path:string='', options:GetDiffsOptions={}) {
   let diffs:Diff[] = [];
-  let deepestPathNode = getDeepestPathNode(path); // eg 'wdith' of path 'a[0].board.width'
+  let deepestPathNode = getDeepestPathNode(path); // eg 'width' of path 'a[0].board.width'
   let optionalCompareFn = 
     deepestPathNode && _isFunction(options?.compare?.[deepestPathNode]) ? 
       options?.compare?.[deepestPathNode] :
@@ -156,18 +156,42 @@ export function _isPlainObject(obj:any) {
 }
 
 /** get array of individual path names given an absolute path
-      eg: 'a[0].board.width' => ['a[0]', 'board', 'width']
+      eg: 'a[0].board.width' => ['a',0, 'board', 'width']
 */ 
-export function getPathNodes(path:string):string[] {
+export function getPathNodes(path:string):(string|number)[] {
   path = path ?? ''
-  return path.split('.')
+  const nodesByDot = path.split('.') // ['a[0]', 'board', 'width']
+  let nodes:(string|number)[] = [];
+  nodesByDot.forEach(node => {
+    if(node.endsWith(']')) {
+      let reExec = /^([a-zA-Z0-9]*)\[([0-9]*)\]$/.exec(node); 
+      let propName = reExec?.[1];        // 'a'
+      let arrayElementNbr = reExec?.[2]; // '0'
+      if(reExec && reExec.length > 2) { // [ 'a[0]', 'a', '0', index: 0, input: 'a[0]', groups: undefined ]
+        if(propName) {
+          nodes.push(propName); // ok if empty string - would be where node is '[0]'
+        }
+        nodes.push(Number(arrayElementNbr))
+      } else {
+        throw new Error('Unable to parse ' + node + ' for arrayElementNbr')
+      }
+    } else {
+      nodes.push(node); 
+    }
+  })
+  return nodes; 
 } 
 
 /** get 'lowest' relative path within an absolute path 
       eg: 'a[0].board.width' => 'width'
+    returns undefined if deepest node is array element number
+      eg 'a[0].boards[1]' => undefined
 */ 
 export function getDeepestPathNode(path:string):string|undefined {
-  return getPathNodes(path).splice(-1)[0]; 
+  const deepestNode = getPathNodes(path).splice(-1)[0]; 
+  if(typeof deepestNode === 'string') {
+    return deepestNode
+  } 
 } 
 
 /** return true if relative path is part of and deepest part of absolute path 
@@ -180,3 +204,16 @@ export function isPathRelativeAndDeepest(relativePath: string, absolutePath: str
   return relativePath === absolutePath || absolutePath.endsWith('.' + relativePath)  ; 
 }
   
+/** return whatever is found in a given object for a given path */ 
+export function getAtPath(path:string|number, obj:any) {
+  if(path === '' || typeof obj !== 'object') return obj; 
+
+  if(typeof path === 'number') return obj[path]; 
+
+  const pathNodes = getPathNodes(path);           // ['a',0,'board','width']
+
+  let node = pathNodes.splice(0,1)[0];  // 'a', 'board' 
+  
+  return getAtPath(pathNodes.length === 0 ? '' : pathNodes.join('.'), obj[node])
+
+}

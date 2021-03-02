@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.isPathRelativeAndDeepest = exports.getDeepestPathNode = exports.getPathNodes = exports._isPlainObject = exports._isDate = exports._isBoolean = exports._isNumber = exports._isString = exports._isFunction = exports.getDiffs = void 0;
+exports.getAtPath = exports.isPathRelativeAndDeepest = exports.getDeepestPathNode = exports.getPathNodes = exports._isPlainObject = exports._isDate = exports._isBoolean = exports._isNumber = exports._isString = exports._isFunction = exports.getDiffs = void 0;
 /** Return an array of paths from an object (`lObj`) that don't match another object (`rObj`) and the values of each.
   *   Equality comparisons include String, Number, Boolean, Date or set custom comparison with options.compare by path
   *   Each element or key in an Array or literal/plain Object is evaluated (unless options.stopAt set for path)
@@ -32,7 +32,7 @@ exports.isPathRelativeAndDeepest = exports.getDeepestPathNode = exports.getPathN
 function getDiffs(lObj, rObj, path = '', options = {}) {
     var _a, _b, _c, _d;
     let diffs = [];
-    let deepestPathNode = getDeepestPathNode(path); // eg 'wdith' of path 'a[0].board.width'
+    let deepestPathNode = getDeepestPathNode(path); // eg 'width' of path 'a[0].board.width'
     let optionalCompareFn = deepestPathNode && _isFunction((_a = options === null || options === void 0 ? void 0 : options.compare) === null || _a === void 0 ? void 0 : _a[deepestPathNode]) ? (_b = options === null || options === void 0 ? void 0 : options.compare) === null || _b === void 0 ? void 0 : _b[deepestPathNode] :
         _isFunction((_c = options === null || options === void 0 ? void 0 : options.compare) === null || _c === void 0 ? void 0 : _c[path]) ? (_d = options === null || options === void 0 ? void 0 : options.compare) === null || _d === void 0 ? void 0 : _d[path] : undefined;
     if (rObj === undefined) {
@@ -141,18 +141,44 @@ function _isPlainObject(obj) {
 }
 exports._isPlainObject = _isPlainObject;
 /** get array of individual path names given an absolute path
-      eg: 'a[0].board.width' => ['a[0]', 'board', 'width']
+      eg: 'a[0].board.width' => ['a',0, 'board', 'width']
 */
 function getPathNodes(path) {
     path = path !== null && path !== void 0 ? path : '';
-    return path.split('.');
+    const nodesByDot = path.split('.'); // ['a[0]', 'board', 'width']
+    let nodes = [];
+    nodesByDot.forEach(node => {
+        if (node.endsWith(']')) {
+            let reExec = /^([a-zA-Z0-9]*)\[([0-9]*)\]$/.exec(node);
+            let propName = reExec === null || reExec === void 0 ? void 0 : reExec[1]; // 'a'
+            let arrayElementNbr = reExec === null || reExec === void 0 ? void 0 : reExec[2]; // '0'
+            if (reExec && reExec.length > 2) { // [ 'a[0]', 'a', '0', index: 0, input: 'a[0]', groups: undefined ]
+                if (propName) {
+                    nodes.push(propName); // ok if empty string - would be where node is '[0]'
+                }
+                nodes.push(Number(arrayElementNbr));
+            }
+            else {
+                throw new Error('Unable to parse ' + node + ' for arrayElementNbr');
+            }
+        }
+        else {
+            nodes.push(node);
+        }
+    });
+    return nodes;
 }
 exports.getPathNodes = getPathNodes;
 /** get 'lowest' relative path within an absolute path
       eg: 'a[0].board.width' => 'width'
+    returns undefined if deepest node is array element number
+      eg 'a[0].boards[1]' => undefined
 */
 function getDeepestPathNode(path) {
-    return getPathNodes(path).splice(-1)[0];
+    const deepestNode = getPathNodes(path).splice(-1)[0];
+    if (typeof deepestNode === 'string') {
+        return deepestNode;
+    }
 }
 exports.getDeepestPathNode = getDeepestPathNode;
 /** return true if relative path is part of and deepest part of absolute path
@@ -165,4 +191,15 @@ function isPathRelativeAndDeepest(relativePath, absolutePath) {
     return relativePath === absolutePath || absolutePath.endsWith('.' + relativePath);
 }
 exports.isPathRelativeAndDeepest = isPathRelativeAndDeepest;
+/** return whatever is found in a given object for a given path */
+function getAtPath(path, obj) {
+    if (path === '' || typeof obj !== 'object')
+        return obj;
+    if (typeof path === 'number')
+        return obj[path];
+    const pathNodes = getPathNodes(path); // ['a',0,'board','width']
+    let node = pathNodes.splice(0, 1)[0]; // 'a', 'board' 
+    return getAtPath(pathNodes.length === 0 ? '' : pathNodes.join('.'), obj[node]);
+}
+exports.getAtPath = getAtPath;
 //# sourceMappingURL=get-diffs.js.map

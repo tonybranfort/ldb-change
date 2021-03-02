@@ -53,11 +53,13 @@ export declare function _isBoolean(obj: any): boolean;
 export declare function _isDate(obj: any): boolean;
 export declare function _isPlainObject(obj: any): boolean;
 /** get array of individual path names given an absolute path
-      eg: 'a[0].board.width' => ['a[0]', 'board', 'width']
+      eg: 'a[0].board.width' => ['a',0, 'board', 'width']
 */
-export declare function getPathNodes(path: string): string[];
+export declare function getPathNodes(path: string): (string | number)[];
 /** get 'lowest' relative path within an absolute path
       eg: 'a[0].board.width' => 'width'
+    returns undefined if deepest node is array element number
+      eg 'a[0].boards[1]' => undefined
 */
 export declare function getDeepestPathNode(path: string): string | undefined;
 /** return true if relative path is part of and deepest part of absolute path
@@ -67,3 +69,5 @@ export declare function getDeepestPathNode(path: string): string | undefined;
     eg ('board', 'a[0].board.width') => false
 */
 export declare function isPathRelativeAndDeepest(relativePath: string, absolutePath: string): boolean;
+/** return whatever is found in a given object for a given path */
+export declare function getAtPath(path: string | number, obj: any): any;

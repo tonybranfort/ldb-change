@@ -4,7 +4,7 @@
 
 const assert = require('assert').strict; 
 
-let {getDiffs, isPathRelativeAndDeepest}  = require('../dist');
+let {getDiffs, isPathRelativeAndDeepest, getAtPath}  = require('../dist');
 
 let nTests = 0; 
 let nTestsSuccess = 0; 
@@ -26,7 +26,8 @@ let tests = [
   testNullRObj,
   testCompareFnByAbsolutePath,
   testCompareFnByDeepestPathNode,
-  testIsPathRelativeAndDeepest
+  testIsPathRelativeAndDeepest,
+  testGetAtPath
 ]
 
 runTests(); 
@@ -440,6 +441,58 @@ function testIsPathRelativeAndDeepest() {
       isPathRelativeAndDeepest('a[0].board', 'a[0].board.width'),
       false
     )
+
+    nTestsSuccess++; 
+    console.log('   OK: ' + test);
+
+  } catch(e) {
+    nTestsFail++; 
+    e.message = test + ' and should ' + e.message; 
+    console.log(e); 
+
+  }
+}
+
+
+function testGetAtPath() {
+  console.log('testGetAtPath:'); 
+  let test = 'should correctly get value at given path ';
+  try {
+    let v; 
+
+    v = getAtPath('a', {a: '33'}); 
+    assert(v, '33')
+
+    v = getAtPath('a.b', {a: {b:55}}); 
+    assert(v, 55)
+
+    v = getAtPath('yo[0]', {yo: [{a: {b:55}} ]  }); 
+    assert(v, {a: {b:55}});
+
+    v = getAtPath('[0]', [{a: {b:55}} ]); 
+    assert(v, {a: {b:55}});
+    
+    v = getAtPath('[0].a.b', [{a: {b:55}} ]); 
+    assert(v, 55);
+    
+    v = getAtPath('yo[0].a', {yo: [{a: {b:55}} ]  }); 
+    assert(v, {b:55});
+
+    v = getAtPath('yo[0].a.b', {yo: [{a: {b:55}} ]  }); 
+    assert(v, 55);
+
+    v = getAtPath('yo[0].a.b[1].lollipops', {yo: [{a: {b:[{lollipops:22},{lollipops:'yesplease'}]}} ]  }); 
+    assert(v, 'yesplease');
+
+    v = getAtPath('a.b.not.gonna.go.anywhere[0]', {a: {b:55}}); 
+    assert(v, undefined)
+
+    v = getAtPath('a.b[0]', {a: {b:55}}); 
+    assert(v, undefined)
+
+    v = getAtPath('a.b[0].whatup.dog', {a: {b:55}}); 
+    assert(v, undefined)
+
 
     nTestsSuccess++; 
     console.log('   OK: ' + test);
