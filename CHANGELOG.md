@@ -1,3 +1,6 @@
+# v3.0.1
+- Re-build with typescript declaration files (no code changes)
+
 # v3.0.0
 - Change `GetDiffsOptions.compare` to also compare objects if `path` (key of `compare` object) is lowest relative path node (eg 'width' of 'a[0].board.width'.  Previously only compared when full path match (eg 'a[0].board.width')
 - Expose new functions: 

@@ -1,6 +1,6 @@
 {
   "name": "ldb-change",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "Basic object comparison",
   "main": "dist/index.js",
   "dependencies": {},
