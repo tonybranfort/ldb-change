@@ -1,3 +1,10 @@
+# v3.0.0
+- Change `GetDiffsOptions.compare` to also compare objects if `path` (key of `compare` object) is lowest relative path node (eg 'width' of 'a[0].board.width'.  Previously only compared when full path match (eg 'a[0].board.width')
+- Expose new functions: 
+  - getPathNodes
+  - getDeepestPathNode
+  - isPathRelativeAndDeepest
+
 # v2.0.2
 - Update package main to correctly point to dist/index.js
 

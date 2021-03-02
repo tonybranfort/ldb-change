@@ -9,15 +9,16 @@ export interface Diff {
 /** optional options for getDiffs   
      stopAt: Object with paths as keys (value='true') where those paths 
        will not be descended. only to determine if there is a difference. 
-     compare: compare Object with paths as keys and value a function 
+     compare: compare Object with paths (absolute or lowest path node) as keys and value a function 
        which is to be used to determine if diff a that path.
        function takes 2 parameters: lObj, rObj; should return true or false.  
        Does not descend down past this path. 
 */ 
 export interface GetDiffsOptions {
   stopAt?: Object|undefined; 
-  compare?: Object|undefined; 
+  compare?: {[key:string /* path */]: (lObj:any, rObj:any) => boolean}; 
 }
+
 
 /** Return an array of paths from an object (`lObj`) that don't match another object (`rObj`) and the values of each.  
   *   Equality comparisons include String, Number, Boolean, Date or set custom comparison with options.compare by path
@@ -41,17 +42,27 @@ export interface GetDiffsOptions {
   *   getDiffs({a: {b: {c: 8}}}, {a: {b: {c: 7}}}, undefined, {stopAt: {"a.b": true}})
   * @example
   *   // returns []  (no Diffs because of compare function at a path )
-  *   getDiffs({a: 1}, {a: '1'}, undefined, {compare: {"a": (lObj, rObj) => lObj + '' === rObj}})
+  *   by full path: 
+  *     getDiffs({a: 1}, {a: '1'}, undefined, {compare: {"a": (lObj, rObj) => lObj + '' === rObj}})
+  *     getDiffs({a: {b: 1}}, {a: {b:'1'}}, undefined, {compare: {"a.b": (lObj, rObj) => lObj + '' === rObj}})
+  *   or by lowest (deepest) path node: 
+  *     getDiffs({a: {b: 1}}, {a: {b:'1'}}, undefined, {compare: {"b": (lObj, rObj) => lObj + '' === rObj}})
 **/   
 export function getDiffs(lObj:any, rObj:any, path:string='', options:GetDiffsOptions={}) {
   let diffs:Diff[] = [];
+  let deepestPathNode = getDeepestPathNode(path); // eg 'wdith' of path 'a[0].board.width'
+  let optionalCompareFn = 
+    deepestPathNode && _isFunction(options?.compare?.[deepestPathNode]) ? 
+      options?.compare?.[deepestPathNode] :
+      _isFunction(options?.compare?.[path]) ? options?.compare?.[path] : undefined; 
+
   if(rObj === undefined) {
     makeDiff(lObj, rObj, path);
-  } else if(options && options.compare && options.compare[path] && 
-    _isFunction(options.compare[path])) {
-    if(!options.compare[path](lObj, rObj)) {
-      makeDiff(lObj, rObj, path);
-    }
+  } else if(optionalCompareFn) {
+      // compare can be for absolute path eg ('a[0].board.width' or relative path eg 'width')
+      if(!optionalCompareFn(lObj, rObj)) {
+        makeDiff(lObj, rObj, path);
+      }
   } else if(
     (_isString(lObj) || _isNumber(lObj) || _isBoolean(lObj)) && 
       lObj !== rObj)  {
@@ -143,3 +154,29 @@ export function _isPlainObject(obj:any) {
     obj.constructor == Object && 
     Object.prototype.toString.call(obj) === '[object Object]'; 
 }
+
+/** get array of individual path names given an absolute path
+      eg: 'a[0].board.width' => ['a[0]', 'board', 'width']
+*/ 
+export function getPathNodes(path:string):string[] {
+  path = path ?? ''
+  return path.split('.')
+} 
+
+/** get 'lowest' relative path within an absolute path 
+      eg: 'a[0].board.width' => 'width'
+*/ 
+export function getDeepestPathNode(path:string):string|undefined {
+  return getPathNodes(path).splice(-1)[0]; 
+} 
+
+/** return true if relative path is part of and deepest part of absolute path 
+    eg ('width', 'a[0].board.width') => true
+    eg ('board.width', 'a[0].board.width') => true
+    eg ('a[0].board.width', 'a[0].board.width') => true
+    eg ('board', 'a[0].board.width') => false
+*/ 
+export function isPathRelativeAndDeepest(relativePath: string, absolutePath: string):boolean {
+  return relativePath === absolutePath || absolutePath.endsWith('.' + relativePath)  ; 
+}
+  

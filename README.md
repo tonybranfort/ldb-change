@@ -79,4 +79,4 @@ Return an array of paths from an object (`lObj`) that don't match another object
 | Param | Type | Description |
 | --- | --- | --- |
 | stopAt | <code>Object</code> \| <code>undefined</code> | Object with paths as keys (value='true') where those paths will not be descended; only to determine if there is a difference |
-| compare | <code>Object</code> \| <code>undefined</code> | Object with paths as keys and value a function which is to be used to determine if diff a that path; function takes 2 parameters: l
+| compare | <code>Object</code> \| <code>undefined</code> | Object with paths as keys and value of a function which is to be used to determine if diff a that path; function takes 2 parameters: lObj and rObj and returns true if they match (no diff).  `path` here can either be a absolute path (eg `a[0].board.width` or a deepest path node (eg `width`) 

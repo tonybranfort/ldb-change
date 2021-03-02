@@ -11,9 +11,5 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !exports.hasOwnProperty(p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const gd = require('./get-diffs');
-module.exports = {
-    getDiffs: gd.getDiffs
-};
 __exportStar(require("./get-diffs"), exports);
 //# sourceMappingURL=index.js.map

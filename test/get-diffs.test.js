@@ -4,7 +4,7 @@
 
 const assert = require('assert').strict; 
 
-let {getDiffs}  = require('../dist');
+let {getDiffs, isPathRelativeAndDeepest}  = require('../dist');
 
 let nTests = 0; 
 let nTestsSuccess = 0; 
@@ -24,7 +24,9 @@ let tests = [
   testStopAtEmptyLObjArray,
   testStopAtEmptyLObjArrayNestedPath,
   testNullRObj,
-  testCompareFn
+  testCompareFnByAbsolutePath,
+  testCompareFnByDeepestPathNode,
+  testIsPathRelativeAndDeepest
 ]
 
 runTests(); 
@@ -360,9 +362,9 @@ function testNullRObj() {
 }
 
 
-function testCompareFn() {
-  console.log('testCompareFn:'); 
-  let test = 'should use an options compare';
+function testCompareFnByAbsolutePath() {
+  console.log('testCompareFnByAbsolutePath:'); 
+  let test = 'should use an options compare fn by absolute path';
   try {
     let lo = {a: 1, b: {z: 0, x: {y: 1}}};
     let ro = {a: 1, b: {z: 0, x: {y: '1'}}};
@@ -383,6 +385,74 @@ function testCompareFn() {
 
   }
 }
+
+function testCompareFnByDeepestPathNode() {
+  console.log('testCompareFnByDeepestPathNode:'); 
+  let test = 'should use an options compare fn by relative path';
+  try {
+    let lo = {a: 1, sortNbr: 5, b: {z: 0, x: {sortNbr: 3, y: 1}}};
+    let ro = {a: 1, sortNbr: 7, b: {z: 0, x: {sortNbr: 5, y: 1}}};
+    let d = getDiffs(lo, ro);
+    assert.strictEqual(d.length, 2);
+
+    let options = {compare: {'sortNbr': (lObj, rObj) => true}};
+    d = getDiffs(lo, ro, undefined, options);
+    assert.strictEqual(d.length, 0);
+
+    nTestsSuccess++; 
+    console.log('   OK: ' + test);
+
+  } catch(e) {
+    nTestsFail++; 
+    e.message = test + ' and should ' + e.message; 
+    console.log(e); 
+
+  }
+}
+
+
+function testIsPathRelativeAndDeepest() {
+  console.log('testIsPathRelativeAndDeepest:'); 
+  let test = 'should correctly return if path is relative and deepest path';
+  try {
+
+    assert.strictEqual(
+      isPathRelativeAndDeepest('width', 'a[0].board.width'),
+      true
+    )
+
+    assert.strictEqual(
+      isPathRelativeAndDeepest('board.width', 'a[0].board.width'),
+      true
+    )
+
+    assert.strictEqual(
+      isPathRelativeAndDeepest('a[0].board.width', 'a[0].board.width'),
+      true
+    )
+
+    assert.strictEqual(
+      isPathRelativeAndDeepest('board', 'a[0].board.width'),
+      false
+    )
+
+    assert.strictEqual(
+      isPathRelativeAndDeepest('a[0].board', 'a[0].board.width'),
+      false
+    )
+
+    nTestsSuccess++; 
+    console.log('   OK: ' + test);
+
+  } catch(e) {
+    nTestsFail++; 
+    e.message = test + ' and should ' + e.message; 
+    console.log(e); 
+
+  }
+}
+
+
 
 // }); // end of diffs describe
 

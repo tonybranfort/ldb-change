@@ -1,13 +1,16 @@
 {
   "name": "ldb-change",
-  "version": "2.0.2",
+  "version": "3.0.0",
   "description": "Basic object comparison",
   "main": "dist/index.js",
   "dependencies": {},
   "devDependencies": {
-    "@types/node": "^14.0.27"
+    "@types/node": "^14.14.31"
   },
-  "scripts": {},
+  "scripts": {
+    "build": "tsc",
+    "test": "node test/get-diffs.test.js"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/tonybranfort/ldb-change"
