@@ -217,3 +217,24 @@ export function getAtPath(path:string|number, obj:any) {
   return getAtPath(pathNodes.length === 0 ? '' : pathNodes.join('.'), obj[node])
 
 }
+
+/** return the diffs that are at a given path 
+      and return those diffs with updated paths relative to the diffs returned
+      ex: ([0],[{path:[0].caseStatus, lObj:..., rObj:...}]) => [{path:caseStatus, lObj:..., rObj:...}]*/ 
+export function getDiffsAtPath(pathIn:string|number, diffs:Diff[]):Diff[] {
+  const path = typeof pathIn === 'number' ? '[' + pathIn + ']' : pathIn; 
+
+  return diffs
+  .filter(d => {
+    return d.path.startsWith(path + '.')  ||
+    d.path.startsWith(path + '[') ||
+    d.path === path;
+  })
+  .map(d => {
+    let newPath = d.path.substring(path.length);
+    newPath = newPath.substring(0,1) === '.' ? newPath.substring(1) : newPath;  
+    // let newPath = d.path.replace(new RegExp('^' + path + '\\.?'), ''); 
+    return {...d, path: newPath}
+  })
+
+}

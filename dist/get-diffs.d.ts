@@ -71,3 +71,7 @@ export declare function getDeepestPathNode(path: string): string | undefined;
 export declare function isPathRelativeAndDeepest(relativePath: string, absolutePath: string): boolean;
 /** return whatever is found in a given object for a given path */
 export declare function getAtPath(path: string | number, obj: any): any;
+/** return the diffs that are at a given path
+      and return those diffs with updated paths relative to the diffs returned
+      ex: ([0],[{path:[0].caseStatus, lObj:..., rObj:...}]) => [{path:caseStatus, lObj:..., rObj:...}]*/
+export declare function getDiffsAtPath(pathIn: string | number, diffs: Diff[]): Diff[];

@@ -1,3 +1,6 @@
+# v3.2.0
+- Add function getDiffsAtPath
+
 # v3.1.0
 - Add function getAtPath
 

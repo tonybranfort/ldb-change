@@ -4,7 +4,7 @@
 
 const assert = require('assert').strict; 
 
-let {getDiffs, isPathRelativeAndDeepest, getAtPath}  = require('../dist');
+let {getDiffs, isPathRelativeAndDeepest, getAtPath,getDiffsAtPath}  = require('../dist');
 
 let nTests = 0; 
 let nTestsSuccess = 0; 
@@ -27,7 +27,8 @@ let tests = [
   testCompareFnByAbsolutePath,
   testCompareFnByDeepestPathNode,
   testIsPathRelativeAndDeepest,
-  testGetAtPath
+  testGetAtPath,
+  testGetDiffsAtPath
 ]
 
 runTests(); 
@@ -492,6 +493,80 @@ function testGetAtPath() {
 
     v = getAtPath('a.b[0].whatup.dog', {a: {b:55}}); 
     assert(v, undefined)
+
+
+    nTestsSuccess++; 
+    console.log('   OK: ' + test);
+
+  } catch(e) {
+    nTestsFail++; 
+    e.message = test + ' and should ' + e.message; 
+    console.log(e); 
+
+  }
+}
+
+
+function testGetDiffsAtPath() {
+  console.log('testGetDiffsAtPath:'); 
+  let test = 'should correctly get diffs at given path ';
+  try {
+
+    let lo = {name: 'bobby',  found: [{cats: 6}, {cats: 8}, {cats: 10}]};
+    let ro = {name: 'robert', found: [{cats: 6}, {cats: 9}]};
+    let diffs = getDiffs(lo, ro);
+    
+    // console.log(diffs); 
+    // [
+    //   { path: 'name', lObj: 'bobby', rObj: 'robert' },
+    //   { path: 'found[1].cats', lObj: 8, rObj: 9 },
+    //   { path: 'found[2]', lObj: { cats: 10 }, rObj: undefined }
+    // ]
+
+    let diffsAtPath; 
+    
+    diffsAtPath = getDiffsAtPath('name',diffs);
+    assert.deepEqual(diffsAtPath, [ { path: '', lObj: 'bobby', rObj: 'robert' } ])
+
+    diffsAtPath = getDiffsAtPath('found',diffs);
+    assert.deepEqual(diffsAtPath, [ 
+      { path: '[1].cats', lObj: 8, rObj: 9 },
+      { path: '[2]', lObj: { cats: 10 }, rObj: undefined }
+    ])
+
+    diffsAtPath = getDiffsAtPath('found[1]',diffs);
+    assert.deepEqual(diffsAtPath, [ 
+      { path: 'cats', lObj: 8, rObj: 9 },
+    ])
+
+    diffsAtPath = getDiffsAtPath('found[1].cats',diffs);
+    assert.deepEqual(diffsAtPath, [ 
+      { path: '', lObj: 8, rObj: 9 },
+    ])
+
+
+    diffs = getDiffs(lo.found, ro.found);
+
+    // console.log(diffs);
+    // [
+    //   { path: '[1].cats', lObj: 8, rObj: 9 },
+    //   { path: '[2]', lObj: { cats: 10 }, rObj: undefined }
+    // ]
+
+    diffsAtPath = getDiffsAtPath('[2]',diffs);
+    assert.deepEqual(diffsAtPath, [ 
+      { path: '', lObj: { cats: 10 }, rObj: undefined},
+    ])
+
+    diffsAtPath = getDiffsAtPath(2, diffs);
+    assert.deepEqual(diffsAtPath, [ 
+      { path: '', lObj: { cats: 10 }, rObj: undefined},
+    ])
+
+    diffsAtPath = getDiffsAtPath('[2].dogs',diffs);
+    assert.deepEqual(diffsAtPath, []);
+
+
 
 
     nTestsSuccess++; 

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getAtPath = exports.isPathRelativeAndDeepest = exports.getDeepestPathNode = exports.getPathNodes = exports._isPlainObject = exports._isDate = exports._isBoolean = exports._isNumber = exports._isString = exports._isFunction = exports.getDiffs = void 0;
+exports.getDiffsAtPath = exports.getAtPath = exports.isPathRelativeAndDeepest = exports.getDeepestPathNode = exports.getPathNodes = exports._isPlainObject = exports._isDate = exports._isBoolean = exports._isNumber = exports._isString = exports._isFunction = exports.getDiffs = void 0;
 /** Return an array of paths from an object (`lObj`) that don't match another object (`rObj`) and the values of each.
   *   Equality comparisons include String, Number, Boolean, Date or set custom comparison with options.compare by path
   *   Each element or key in an Array or literal/plain Object is evaluated (unless options.stopAt set for path)
@@ -202,4 +202,23 @@ function getAtPath(path, obj) {
     return getAtPath(pathNodes.length === 0 ? '' : pathNodes.join('.'), obj[node]);
 }
 exports.getAtPath = getAtPath;
+/** return the diffs that are at a given path
+      and return those diffs with updated paths relative to the diffs returned
+      ex: ([0],[{path:[0].caseStatus, lObj:..., rObj:...}]) => [{path:caseStatus, lObj:..., rObj:...}]*/
+function getDiffsAtPath(pathIn, diffs) {
+    const path = typeof pathIn === 'number' ? '[' + pathIn + ']' : pathIn;
+    return diffs
+        .filter(d => {
+        return d.path.startsWith(path + '.') ||
+            d.path.startsWith(path + '[') ||
+            d.path === path;
+    })
+        .map(d => {
+        let newPath = d.path.substring(path.length);
+        newPath = newPath.substring(0, 1) === '.' ? newPath.substring(1) : newPath;
+        // let newPath = d.path.replace(new RegExp('^' + path + '\\.?'), ''); 
+        return { ...d, path: newPath };
+    });
+}
+exports.getDiffsAtPath = getDiffsAtPath;
 //# sourceMappingURL=get-diffs.js.map
