@@ -1,3 +1,6 @@
+# v4.0.0
+- change getDiffs so if options.compare fn is included, that is tested before rObj = undefined.  Before this change if rObj was unddefined, then diff was always returned regardless of if options.compare fn. 
+
 # v3.2.0
 - Add function getDiffsAtPath
 

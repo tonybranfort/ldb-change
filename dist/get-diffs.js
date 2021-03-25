@@ -35,14 +35,14 @@ function getDiffs(lObj, rObj, path = '', options = {}) {
     let deepestPathNode = getDeepestPathNode(path); // eg 'width' of path 'a[0].board.width'
     let optionalCompareFn = deepestPathNode && _isFunction((_a = options === null || options === void 0 ? void 0 : options.compare) === null || _a === void 0 ? void 0 : _a[deepestPathNode]) ? (_b = options === null || options === void 0 ? void 0 : options.compare) === null || _b === void 0 ? void 0 : _b[deepestPathNode] :
         _isFunction((_c = options === null || options === void 0 ? void 0 : options.compare) === null || _c === void 0 ? void 0 : _c[path]) ? (_d = options === null || options === void 0 ? void 0 : options.compare) === null || _d === void 0 ? void 0 : _d[path] : undefined;
-    if (rObj === undefined) {
-        makeDiff(lObj, rObj, path);
-    }
-    else if (optionalCompareFn) {
+    if (optionalCompareFn) {
         // compare can be for absolute path eg ('a[0].board.width' or relative path eg 'width')
         if (!optionalCompareFn(lObj, rObj)) {
             makeDiff(lObj, rObj, path);
         }
+    }
+    else if (rObj === undefined) {
+        makeDiff(lObj, rObj, path);
     }
     else if ((_isString(lObj) || _isNumber(lObj) || _isBoolean(lObj)) &&
         lObj !== rObj) {

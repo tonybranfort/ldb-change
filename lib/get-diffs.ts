@@ -56,13 +56,13 @@ export function getDiffs(lObj:any, rObj:any, path:string='', options:GetDiffsOpt
       options?.compare?.[deepestPathNode] :
       _isFunction(options?.compare?.[path]) ? options?.compare?.[path] : undefined; 
 
-  if(rObj === undefined) {
-    makeDiff(lObj, rObj, path);
-  } else if(optionalCompareFn) {
+  if(optionalCompareFn) {
       // compare can be for absolute path eg ('a[0].board.width' or relative path eg 'width')
       if(!optionalCompareFn(lObj, rObj)) {
         makeDiff(lObj, rObj, path);
       }
+  } else if(rObj === undefined) {
+    makeDiff(lObj, rObj, path);
   } else if(
     (_isString(lObj) || _isNumber(lObj) || _isBoolean(lObj)) && 
       lObj !== rObj)  {
